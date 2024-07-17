@@ -1,0 +1,151 @@
+	
+	
+*) run docker and mount to F (note: when see this error: can not find vault/config, please create config folder under mount file in F)	
+- docker run --cap-add=IPC_LOCK -d --name=dev-vault -p 8200:8200 -v //f/docker/containers-data/hashicorp-vault/:~/vault/ hashicorp/vault 
+
+  docker run -d --name=dev-vault  -e 'SKIP_SETCAP=true' -e 'VAULT_DEV_ROOT_TOKEN_ID=linhpham' -e 'VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200' -p 8200:8200 -v //f/docker/containers-data/hashicorp-vault/:/vault hashicorp/vault 
+  
+  docker run -d --name=dev-vault -e 'VAULT_LOCAL_CONFIG={"storage": {"file": {"path": "/vault/file"}}, "listener": [{"tcp": { "address": "0.0.0.0:8200", "tls_disable": true}}], "default_lease_ttl": "168h", "max_lease_ttl": "720h", "ui": true}' -p 8200:8200 -v //f/docker/containers-data/hashicorp-vault/:~/vault hashicorp/vault
+  
+- url: http://localhost:8200/ui/vault/secrets/kv/kv/jenkin/details?version=1
+
+- create network and link two container to the same network:
+  + 
+	docker network create your-network-name
+	docker network connect your-network-name container-name-A
+	docker network connect your-network-name container-name-B
+	
+  + inspect network to check container in the network:
+	docker inspect your-network-name
+
+- How it work with hashicorp kv type:
+   + go "Secrets Engines" => select "path", ex "jenkin-vault" => select "Secret" => click table "paths"
+    
+	
+   + Call postman: 
+		POST: http://localhost:8200/v1/jenkin-vault/data/jenkin-data
+		add header: X-Vault-Token / <root token or unseal key>
+		+ Unseal Key: OA5SqSqgPnW8sSV3RrQLnLlXU9ThkqGKZTvNNyD1CTQ=
+          Root Token: hvs.qJ5jkGNd8HBj78ba6LivRRdl
+		
+   + Check path at: http://localhost:8200/ui/vault/secrets/jenkin-vault/kv/jenkin-data/paths
+
+*) jenkin	
+ - install following this link: https://www.jenkins.io/doc/book/installing/docker/
+ 
+ - docker run --name jenkins-blueocean --restart=on-failure --detach ^
+  --network jenkins --env DOCKER_HOST=tcp://docker:2376 ^
+  --env DOCKER_CERT_PATH=/certs/client --env DOCKER_TLS_VERIFY=1 ^
+  --volume //f/docker/containers-data/jenkin-local/jenkin-data:/var/jenkins_home ^
+  --volume //f/docker/containers-data/jenkin-local/jenkin-cert:/certs/client:ro ^
+  --publish 8080:8080 --publish 50000:50000 myjenkins-blueocean:2.452.2-1
+	
+ - UI password: phamlinh1995/phamlinh1995
+	
+	*pipeline script:
+	
+	
+
+		def configuration = [vaultUrl: 'http://dev-vault:8200', 
+							 vaultCredentialId: 'hhhhh', 
+							 engineVersion: 2]
+
+		def secrets = [
+		  [  path: 'jenkin-vault/credentials', engineVersion: 2, 
+			 secretValues: [[envVar: 'GIT_URL', vaultKey: 'GIT_URL']]
+		  ]
+		]
+
+
+		pipeline {
+			agent any
+
+			tools {
+				// Install the Maven version configured as "M3" and add it to the path.
+				maven "mavn"
+			}
+
+			stages {
+				
+				stage('Vault') {
+					steps {
+					  withVault([configuration:configuration, vaultSecrets: secrets]) {
+						sh "echo ${env.GIT_URL}"
+						sh "GIT=${env.GIT_URL}"
+					  }
+					}  
+			  }
+				
+				stage('Build') {
+					steps {
+						// Get some code from a GitHub repository
+						withVault([configuration:configuration, vaultSecrets: secrets]) {
+						   //  sh "echo ${env.GIT_URL}"
+						  //  git 'GIT'
+							sh "git pull ${env.GIT_URL}"
+						//  checkout([$class: 'GitSCM', branches: [[name: '*/master']],
+						//            userRemoteConfigs: [[url: '${env.GIT_URL}']]])
+						}
+
+						// Run Maven on a Unix agent.
+						sh "mvn -Dmaven.test.failure.ignore=true clean package"
+
+						// To run Maven on a Windows agent, use
+						// bat "mvn -Dmaven.test.failure.ignore=true clean package"
+					}
+
+					post {
+						// If Maven was able to run the tests, even if some of the test
+						// failed, record the test results and archive the jar file.
+						success {
+							junit '**/target/surefire-reports/TEST-*.xml'
+							archiveArtifacts 'target/*.jar'
+						}
+					}
+				}
+			}
+		}
+	
+	
+	
+	
+	
+	
+*) My repo: https://github.com/NguyenNgan14020323/demo-spring-boot
+	
+	
+*) -git mr. Dai: https://github.com/trantrongdai/shorted-link-pro	
+	
+	
+	
+	
+*) Reference:
+
+ - https://hub.docker.com/r/hashicorp/vault
+ 
+ - https://www.jenkins.io/doc/book/installing/docker/
+ 
+ - https://octopus.com/integrations/hashicorp-vault/hashicorp-vault-key-value-v2-retrieve-secrets
+ 
+ - https://www.ru-rocker.com/2019/09/27/how-to-isolate-database-credentials-in-spring-boot-using-vault/
+ 
+ - https://blog.nashtechglobal.com/integrating-jenkins-hashicorp-vault/
+ 
+ - https://stackoverflow.com/questions/50721424/how-to-add-containers-to-same-network-in-docker
+ 
+ - https://github.com/BetterCloud/vault-java-driver/blob/master/src/main/java/com/bettercloud/vault/api/Auth.java#L504 => key: loginByAppRole
+ 
+ - https://github.com/jenkinsci/hashicorp-vault-plugin/blob/master/src/main/java/com/datapipe/jenkins/vault/VaultAccessor.java => key: com.datapipe.jenkins.vault.exception.VaultPluginException: Access denied to Vault path 'jenkin-vault/credentials'
+ 
+ - https://www.jenkins.io/doc/pipeline/steps/git/
+ 
+ - https://superuser.com/questions/1732641/how-to-use-git-pull-with-jenkins-sh-steps
+ 
+ - https://plugins.jenkins.io/hashicorp-vault-plugin/
+ 
+ - https://developer.hashicorp.com/vault/api-docs/auth/approle
+ 
+ - https://stackoverflow.com/questions/40213524/using-absolute-path-with-docker-run-command-not-working
+ 
+ - https://developer.hashicorp.com/vault/docs/auth/approle
+ 
