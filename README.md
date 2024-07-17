@@ -56,8 +56,8 @@ how to connect between hashicorp vault to jenkins
    
    3. In `Secrets Engines`  choose `jenkin-vault` Click button `Create secret` button then select `Path`, for example in my demo is `credentials`.
    
-   4. In `Secrets Data` choose secret key and secret value. In my demo i create <br /> 
-		secret key:   `GIT_URL` and  <br /> 
+   4. In `Secrets Data` choose secret key and secret value. In my demo i create <br/> 
+		secret key:   `GIT_URL` and  <br/> 
 		secret value: `https://github.com/NguyenNgan14020323/demo-spring-boot`
 		
    5. Go back to vault home then select `Authentication Methods` tab then click button `Enable new method`, in this case we choose `AppRole`
@@ -117,9 +117,9 @@ how to connect between hashicorp vault to jenkins
    9. Fetch the RoleID of the AppRole
       - Using postman:
 		
-		PATH: http://localhost:8200/v1/auth/`<app role path>`/role/`<your role name>`/role-id <br /> 
-		method: GET <br /> 
-		add header value: X-Vault-Token=`<your root token>` <br /> 
+		PATH: http://localhost:8200/v1/auth/`<app role path>`/role/`<your role name>`/role-id \
+		method: GET \ 
+		add header value: X-Vault-Token=`<your root token>` \
 	  
 	    Example<br /> 
 		GET / http://127.0.0.1:8200/v1/auth/approle/role/my-role/role-id <br /> 
