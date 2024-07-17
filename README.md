@@ -67,8 +67,8 @@ how to connect between hashicorp vault to jenkins
 		
    7. After these step, you can check in postman by call this url 
        - PATH: http://localhost:8200/v1/`<secrets engine name>`/data/`<secret path>` \ 
-			Method: GET  \
-			Add header value: X-Vault-Token=`<your root token>` \ 
+	 Method: GET  \
+	 Add header value: X-Vault-Token=`<your root token>` \ 
 		
 		
 	  - In my example : <br /> 
