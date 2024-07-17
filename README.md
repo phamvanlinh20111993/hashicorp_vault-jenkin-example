@@ -39,16 +39,16 @@ how to connect between hashicorp vault to jenkins
 # Setup
 
  ### I) Setup approle for jenkin in hashicorp vault
-	Follow these links:
-                        https://developer.hashicorp.com/vault/docs/auth/approle
+	Follow these links: <br /> 
+                        https://developer.hashicorp.com/vault/docs/auth/approle <br /> 
 						
-	                    https://developer.hashicorp.com/vault/api-docs/auth/approle
+	                    https://developer.hashicorp.com/vault/api-docs/auth/approle <br /> 
 	
-	                    https://developer.hashicorp.com/vault/api-docs
+	                    https://developer.hashicorp.com/vault/api-docs <br /> 
 						
 						
 						
-	this is the summary after reading follow step by step:
+	this is the summary after reading follow step by step:<br /> 
  
    1. Login http://localhost:8200/ui/vault/ with root token in cmd
    
@@ -56,53 +56,53 @@ how to connect between hashicorp vault to jenkins
    
    3. In `Secrets Engines`  choose `jenkin-vault` Click button `Create secret` button then select `Path`, for example in my demo is `credentials`.
    
-   4. In `Secrets Data` choose secret key and secret value. In my demo i create 
-		secret key:   `GIT_URL` and 
+   4. In `Secrets Data` choose secret key and secret value. In my demo i create <br /> 
+		secret key:   `GIT_URL` and  <br /> 
 		secret value: `https://github.com/NguyenNgan14020323/demo-spring-boot`
 		
    5. Go back to vault home then select `Authentication Methods` tab then click button `Enable new method`, in this case we choose `AppRole`
    
-   6. In `Enable an Authentication Method` page content, choose `Path` input, in my case, i left it as default `approle` then click `Enable method`.
+   6. In `Enable an Authentication Method` page content, choose `Path` input, in my case, i left it as default `approle` then click `Enable method`.<br /> 
      note: you can enable through CLI by this command: ` vault auth enable approle`
 		
    7. After these step, you can check in postman by call this url 
-        PATH: http://localhost:8200/v1/`<secrets engine name>`/data/`<secret path>`
-		method: GET
-		add header value: X-Vault-Token=`<your root token>`
+       - PATH: http://localhost:8200/v1/`<secrets engine name>`/data/`<secret path>`<br /> 
+			Method: GET<br /> 
+			Add header value: X-Vault-Token=`<your root token>`<br /> 
 		
 		
-		in my example is: 
-		GET / http://localhost:8200/v1/jenkin-vault/data/credentials
-		    X-Vault-Token=`linhpham`
+	  - In my example : <br /> 
+		    GET / http://localhost:8200/v1/jenkin-vault/data/credentials<br /> 
+		    X-Vault-Token=`linhpham`<br /> 
 			
-		The response example should be like this:
-		```
-		{
-			"request_id": "b82f4309-89bc-f39e-b822-8a5748eac1d2",
-			"lease_id": "",
-			"renewable": false,
-			"lease_duration": 0,
-			"data": {
+			The response example should be like this:<br /> 
+			```
+			{
+				"request_id": "b82f4309-89bc-f39e-b822-8a5748eac1d2",
+				"lease_id": "",
+				"renewable": false,
+				"lease_duration": 0,
 				"data": {
-					"GIT_URL": "https://github.com/NguyenNgan14020323/demo-spring-boot"
+					"data": {
+						"GIT_URL": "https://github.com/NguyenNgan14020323/demo-spring-boot"
+					},
+					"metadata": {
+						"created_time": "2024-07-16T14:29:53.455876326Z",
+						"custom_metadata": null,
+						"deletion_time": "",
+						"destroyed": false,
+						"version": 1
+					}
 				},
-				"metadata": {
-					"created_time": "2024-07-16T14:29:53.455876326Z",
-					"custom_metadata": null,
-					"deletion_time": "",
-					"destroyed": false,
-					"version": 1
-				}
-			},
-			"wrap_info": null,
-			"warnings": null,
-			"auth": null,
-			"mount_type": "kv"
-		}
-		```
+				"wrap_info": null,
+				"warnings": null,
+				"auth": null,
+				"mount_type": "kv"
+			}
+			```
 		
-   8. After create approle, Create a named role in the CLI (in home page select square next to user body icon):
-		Create a name role `my-role`
+   8. After create approle, Create a named role in the CLI (in home page select square next to user body icon):<br /> 
+		Create a name role `my-role`<br /> 
 		```
 		vault write auth/approle/role/my-role \
 		token_type=batch \
@@ -112,20 +112,20 @@ how to connect between hashicorp vault to jenkins
 		token_max_ttl=30000m \
 		secret_id_num_uses=4000
 		```
-	   the result in CLI should be: `Success! Data written to: auth/approle/role/my-role`
+	   the result in CLI should be: `Success! Data written to: auth/approle/role/my-role`<br /> 
 	   
    9. Fetch the RoleID of the AppRole
       - Using postman:
 		
-		PATH: http://localhost:8200/v1/auth/`<app role path>`/role/`<your role name>`/role-id
-		method: GET
-		add header value: X-Vault-Token=`<your root token>`
+		PATH: http://localhost:8200/v1/auth/`<app role path>`/role/`<your role name>`/role-id<br /> 
+		method: GET<br /> 
+		add header value: X-Vault-Token=`<your root token>`<br /> 
 	  
-	    Example
-		GET / http://127.0.0.1:8200/v1/auth/approle/role/my-role/role-id
-	      X-Vault-Token=`linhpham`
+	    Example<br /> 
+		GET / http://127.0.0.1:8200/v1/auth/approle/role/my-role/role-id<br /> 
+	      X-Vault-Token=`linhpham`<br /> 
 		  
-		The response should be:
+		The response should be:<br /> 
 		```
 		{
 			"request_id": "80d3c00e-2e37-9cc1-c5a8-f2a0710c9f33",
@@ -144,8 +144,8 @@ how to connect between hashicorp vault to jenkins
 		  
 		  
 	  - Using CLI:
-	     `vault read auth/approle/role/my-role/role-id` 
-		Get this rolet_id. Example: the result should be 
+	     `vault read auth/approle/role/my-role/role-id` <br /> 
+		Get this rolet_id. Example: the result should be <br /> 
 		 ```
 		 Key     Value                               
          role_id bbbffb85-b98e-3835-95d6-29487a02bee5
@@ -154,13 +154,13 @@ how to connect between hashicorp vault to jenkins
    10. Get a SecretID issued against the AppRole:
 	  - Using postman:
 		
-		PATH: http://localhost:8200/v1/auth/`<app role path>`/role/`<your role name>`/secret-id
-		method: POST
-		add header value: X-Vault-Token=`<your root token>`
+		PATH: http://localhost:8200/v1/auth/`<app role path>`/role/`<your role name>`/secret-id<br /> 
+		method: POST<br /> 
+		add header value: X-Vault-Token=`<your root token>`<br /> 
 	  
-	    Example
-		POST / http://127.0.0.1:8200/v1/auth/approle/role/my-role/secret-id
-	      X-Vault-Token=`linhpham`
+	    Example<br /> 
+		POST / http://127.0.0.1:8200/v1/auth/approle/role/my-role/secret-id<br /> 
+	      X-Vault-Token=`linhpham`<br /> 
 		  
 		The response should be:
 		```
@@ -185,7 +185,7 @@ how to connect between hashicorp vault to jenkins
 		  
 	  - Using CLI:
 	     `vault write -f auth/approle/role/my-role/secret-id` 
-		Get this secret_id. Example: the result should be 
+		Get this secret_id. Example: the result should be <br /> 
 		 ```
 		 Key                Value                               
 		secret_id          e88a7b86-e36a-4632-d6d0-485ae79f844e
@@ -197,9 +197,9 @@ how to connect between hashicorp vault to jenkins
 	  - Note: each time you call this api or execute in CLI, the respone always change(not fixed 'role_id' in previous step 10)
 	  
    11. After get role_id and secret_id from step 9 and 10. Next, we check the approle is success login. By using this api:
-		PATH: http://localhost:8200/v1/auth/`<app role path>`/login
-		method: POST
-		request body (json): 
+		PATH: http://localhost:8200/v1/auth/`<app role path>`/login<br /> 
+		method: POST<br /> 
+		request body (json): <br /> 
 		```
 		{
 			"role_id":<your role id>,
@@ -207,9 +207,9 @@ how to connect between hashicorp vault to jenkins
 		}
 		```
 		
-		Example
-		POST / http://localhost:8200/v1/auth/approle/login
-	    request body (json): 
+		Example<br /> 
+		POST / http://localhost:8200/v1/auth/approle/login<br /> 
+	    request body (json): <br /> 
 		```
 		{
 			"role_id":"bbbffb85-b98e-3835-95d6-29487a02bee5",
@@ -218,7 +218,7 @@ how to connect between hashicorp vault to jenkins
 		}
 		```
 		  
-		The response should be:
+		The response should be:<br /> 
 		```
 		{
 			"request_id": "586c72ef-47e5-497a-c71a-34a4d1fe7acf",
@@ -272,27 +272,27 @@ how to connect between hashicorp vault to jenkins
 		```
    
    13. After create your policies in step 12. Next, assign this policy to your approle using postman
-	 PATH: http://localhost:8200/v1/auth/`<app role path>`/`<your role name>`
-		method: POST
-		request body (json): 
+	 PATH: http://localhost:8200/v1/auth/`<app role path>`/`<your role name>`<br /> 
+		method: POST<br /> 
+		request body (json): <br /> 
 		```
 		{"policies": "<your policy>", "token_type": "<approle token type>"}
 		```
 		
-		Example
-		POST / http://localhost:8200/v1/auth/approle/login
+		Example<br /> 
+		POST / http://localhost:8200/v1/auth/approle/login<br /> 
 	    request body (json): 
 		```
 		{"policies": "jenkin-vault", "token_type": "batch"}
 		```
 		  
-		The response should be:
+		The response should be:<br /> 
 		```
 			204 No Content
 		```
 		
    14. You can check the polices is success add or not by check it in step 11.
-    The response should contains this attributes:
+    The response should contains this attributes:<br /> 
 	```
 		"policies": [
 			"default",
@@ -308,7 +308,7 @@ how to connect between hashicorp vault to jenkins
  
    1. Install hashicorp vault plugin: https://plugins.jenkins.io/hashicorp-vault-plugin/
    
-      - Using the GUI: From your Jenkins dashboard navigate to `Manage Jenkins > Manage Plugins` and select the `Available` tab. 
+      - Using the GUI: From your Jenkins dashboard navigate to `Manage Jenkins > Manage Plugins` and select the `Available` tab.<br />  
       Locate this plugin by searching for 'hashicorp-vault-plugin'.
 	  
 	  - Using the CLI tool:
