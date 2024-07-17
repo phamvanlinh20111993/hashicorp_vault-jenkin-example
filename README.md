@@ -44,11 +44,9 @@ how to connect between hashicorp vault to jenkins
 						
 	    https://developer.hashicorp.com/vault/api-docs/auth/approle 
 	
-	    https://developer.hashicorp.com/vault/api-docs 
+	    https://developer.hashicorp.com/vault/api-docs 				
 						
-	<br /> 					
-						
-	this is the summary after reading follow step by step: <br /> 
+	this is the summary after reading follow step by step:  
  
    1. Login http://localhost:8200/ui/vault/ with root token in cmd
    
@@ -56,26 +54,26 @@ how to connect between hashicorp vault to jenkins
    
    3. In `Secrets Engines`  choose `jenkin-vault` Click button `Create secret` button then select `Path`, for example in my demo is `credentials`.
    
-   4. In `Secrets Data` choose secret key and secret value. In my demo i create <br/> 
-		secret key:   `GIT_URL` and  <br/> 
-		secret value: `https://github.com/NguyenNgan14020323/demo-spring-boot`
+   4. In `Secrets Data` choose secret key and secret value. In my demo i create  
+		secret key:   `GIT_URL` and  
+		secret value: `https://github.com/NguyenNgan14020323/demo-spring-boot`  
 		
    5. Go back to vault home then select `Authentication Methods` tab then click button `Enable new method`, in this case we choose `AppRole`
    
-   6. In `Enable an Authentication Method` page content, choose `Path` input, in my case, i left it as default `approle` then click `Enable method`.<br /> 
+   6. In `Enable an Authentication Method` page content, choose `Path` input, in my case, i left it as default `approle` then click `Enable method`.   
      note: you can enable through CLI by this command: ` vault auth enable approle`
 		
    7. After these step, you can check in postman by call this url 
-       - PATH: http://localhost:8200/v1/`<secrets engine name>`/data/`<secret path>` \ 
-	 Method: GET  \
-	 Add header value: X-Vault-Token=`<your root token>` \ 
+       - PATH: http://localhost:8200/v1/`<secrets engine name>`/data/`<secret path>`  
+	 Method: GET  
+	 Add header value: X-Vault-Token=`<your root token>`  
 		
 		
-	  - In my example : <br /> 
-		    GET / http://localhost:8200/v1/jenkin-vault/data/credentials <br /> 
-		    X-Vault-Token=`linhpham` <br /> 
+	  - In my example :  
+		    GET / http://localhost:8200/v1/jenkin-vault/data/credentials  
+		    X-Vault-Token=`linhpham`   
 			
-			The response example should be like this: <br /> 
+			The response example should be like this:   
 			```
 			{
 				"request_id": "b82f4309-89bc-f39e-b822-8a5748eac1d2",
